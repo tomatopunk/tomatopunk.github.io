@@ -1,14 +1,7 @@
-#
-# This file contains configuration flags to customize your site
-#
-
-# Name of your site (displayed in the header)
 name: Tomato Punk
+description: >-
+  中国人，侧重在Go/C#方面，文章以翻译一些优质的英文博客，书籍等为主。
 
-# Short bio or description (displayed in the header)
-description: Web Developer from Somewhere
-
-# URL of your avatar or profile pic (you could use your GitHub profile pic)
 # avatar: https://cdn.nlark.com/yuque/0/2019/png/460920/1568100617126-avatar/b7cfdfb8-a2fe-406b-a6ca-a34fdd62c747.png?x-oss-process=image%2Fresize%2Cm_fill%2Cw_112%2Ch_112%2Fformat%2Cpng
 avatar: https://raw.githubusercontent.com/tomatopunk/tomatopunk.github.io/master/images/head.png
 
