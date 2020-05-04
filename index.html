@@ -4,15 +4,30 @@ layout: default
 
 <div class="posts">
   {% for post in site.posts %}
-    <article class="post">
+  <article class="post">
 
-      <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
+    <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
 
-      <div class="entry">
-        {{ post.excerpt }}
-      </div>
+    <div class="entry">
+      {{ post.excerpt }}
+    </div>
 
-      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
-    </article>
+    <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
+  </article>
   {% endfor %}
 </div>
+
+<!-- Default Statcounter code for My Bloger WebSite
+http://murph.site -->
+<script type="text/javascript">
+  var sc_project=12023158; 
+  var sc_invisible=0; 
+  var sc_security="85687824"; 
+  var sc_https=1; 
+  var sc_remove_link=1; 
+  var scJsHost = "https://";
+  document.write("<sc"+"ript type='text/javascript' src='" +
+  scJsHost+
+  "statcounter.com/counter/counter.js'></"+"script>");
+  </script>
+  <!-- End of Statcounter Code -->
