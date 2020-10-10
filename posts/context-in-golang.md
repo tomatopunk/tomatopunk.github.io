@@ -212,7 +212,7 @@ func greetWithTimeout(c greetpb.GreetServiceClient) {
 	log.Printf("Response: %s\n", res.Result)
 }
 ``` 
-### OpenTelemetry 
+### OpenTelemetry
 
 `OpenTelemetry `还严重依赖于上下文来实现所谓的**上下文传播(Context Propagation)**.这是一种将不同系统中请求捆绑起来的做法.实现方式是将Span信息`注入(Inject)`到上下文中,作为您使用的协议的一部分(例如HTTP或gRPC).在另一个服务上,您需要`提取(Extrace)`Span信息.我在两篇文章中写过关于OpenTelemetry的文章,您可以在之类找到[part 1](https://medium.com/swlh/distributed-tracing-with-opentelemetry-part-1-6719df95a364),[part 2](https://levelup.gitconnected.com/distributed-tracing-with-opentelemetry-part-2-cc5a9a8aa88c).在这里您可以找到更多的关于OpenTelemetry的信息,以及使用gRPC和HTTP的例子.
 
