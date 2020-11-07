@@ -11,17 +11,16 @@ tags:
 
 layout: layouts/post.njk
 ---
-# 原作者
+### 原文信息
 
-[@Maoni Stephens](https://twitter.com/maoni0)
-原作者Twitter：[https://twitter.com/maoni0](https://twitter.com/maoni0)
-原作者Github：[https://github.com/Maoni0](https://github.com/Maoni0)
+[@Maoni Stephens-Twitter](https://twitter.com/maoni0)
+[@Maoni Stephens-Github](https://github.com/Maoni0)
 
 ![authorize](/img/1587561145552-0d8a560c-3b7d-443a-badc-a98ddbb6e7bf.png)
 
 如果这篇文章可以帮到您，那么这将是我最大的荣幸，希望您点进原文，在文章下方留下善意的回复，您的支持将是这些可敬的社区磐石保持创作激情中最大的一部分:)
 
-[点击此处访问原文](https://devblogs.microsoft.com/dotnet/work-flow-of-diagnosing-memory-performance-issues-part-1)
+[原文](https://devblogs.microsoft.com/dotnet/work-flow-of-diagnosing-memory-performance-issues-part-1)
 
 **中文版本将不会以任何形式收费，版权属与原作者**
 

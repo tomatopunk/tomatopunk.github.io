@@ -11,7 +11,7 @@ layout: layouts/post.njk
 ### 原文信息
 
 [@ricardo.linck](https://levelup.gitconnected.com/@ricardo.linck)
-[Context in Golang!(原文)](https://levelup.gitconnected.com/context-in-golang-98908f042a57)
+[原文:Context in Golang!](https://levelup.gitconnected.com/context-in-golang-98908f042a57)
 
 ---
 
