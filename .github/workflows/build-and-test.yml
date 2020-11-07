@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [14.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -22,6 +22,14 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm update
-    - run: npm install
-    - run: npm run build
+    - name: npm install and build
+      run: |
+        npm update
+        npm install
+        npm run build
+        
+    - name : deoloy
+      uses: peaceiris/actions-gh-pages@v3.7.3
+      with:
+        publish_dir : ./_site
+        github_token : ${{ secrets.GITHUB_TOKEN }}    
