@@ -113,6 +113,6 @@ plugins:
   - hexo-generate-feed
 
 deploy:
-  type: 'git'
-  repo: https://github.com/tomatopunk/tomatopunk.github.io.git
+  type: git
+  repository: https://github.com/tomatopunk/tomatopunk.github.io.git
   branch: gh-pages
