@@ -28,15 +28,15 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm ci
     
-    # # Deploy hexo blog website.
-    # - name: Deploy
-    #   id: deploy
-    #   uses: sma11black/hexo-action@v1.0.3
-    #   with:
-    #     deploy_key: ${{ secrets.DEPLOY_KEY }}
-    #     user_name: flamingo
-    #     user_email: lion.zhang@mail.com
-    #     commit_msg: ${{ github.event.head_commit.message }}
+    # Deploy hexo blog website.
+    - name: Deploy
+      id: deploy
+      uses: sma11black/hexo-action@v1.0.3
+      with:
+        deploy_key: ${{ secrets.DEPLOY_KEY }}
+        user_name: flamingo
+        user_email: lion.zhang@mail.com
+        commit_msg: ${{ github.event.head_commit.message }}
 
     - name: Get the output
       run: |

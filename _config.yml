@@ -112,8 +112,7 @@ theme: next
 plugins: 
   - hexo-generate-feed
 
-
-# Deployment
-## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: 'git'
+  repo: https://github.com/tomatopunk/tomatopunk.github.io.git
+  branch: gh-pages
