@@ -2,7 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://murph.site/tags/index.html</loc>
+    <loc>http://murph.site/2020/10/19/hello-world/</loc>
+    
+    <lastmod>2020-11-13</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://murph.site/about/index.html</loc>
     
     <lastmod>2020-11-13</lastmod>
     
@@ -16,14 +23,7 @@
   </url>
   
   <url>
-    <loc>http://murph.site/2020/10/19/hello-world/</loc>
-    
-    <lastmod>2020-11-13</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://murph.site/about/index.html</loc>
+    <loc>http://murph.site/tags/index.html</loc>
     
     <lastmod>2020-11-13</lastmod>
     
