@@ -114,5 +114,5 @@ plugins:
 
 deploy:
   type: git
-  repository: https://github.com/tomatopunk/tomatopunk.github.io.git
+  repository: git@github.com:tomatopunk/tomatopunk.github.io.git
   branch: gh-pages
