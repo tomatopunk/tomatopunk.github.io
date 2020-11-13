@@ -21,19 +21,25 @@
     var CONFIG = {"hostname":"murph.site","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="一个中国软件开发工程师的自娱自乐">
-<meta property="og:type" content="website">
-<meta property="og:title" content="标签">
-<meta property="og:url" content="http://murph.site/tags/index.html">
+  <meta name="description" content="CLR线程的概要设计 原文信息原文:dotnet&#x2F;coreclr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CLR线程概述">
+<meta property="og:url" content="http://murph.site/2020/11/10/c-clr-thread/index.html">
 <meta property="og:site_name" content="Tomato Punk">
-<meta property="og:description" content="一个中国软件开发工程师的自娱自乐">
+<meta property="og:description" content="CLR线程的概要设计 原文信息原文:dotnet&#x2F;coreclr">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-11-12T00:00:00.000Z">
+<meta property="article:published_time" content="2020-11-10T14:27:26.000Z">
 <meta property="article:modified_time" content="2020-11-13T06:51:23.004Z">
 <meta property="article:author" content="Murphy">
+<meta property="article:tag" content="C#">
+<meta property="article:tag" content="性能诊断">
+<meta property="article:tag" content="线程">
+<meta property="article:tag" content="概要设计">
+<meta property="article:tag" content="CLR Thread">
+<meta property="article:tag" content="Thread">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://murph.site/tags/">
+<link rel="canonical" href="http://murph.site/2020/11/10/c-clr-thread/">
 
 
 <script id="page-configurations">
@@ -41,13 +47,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>标签 | Tomato Punk
-</title>
+  <title>CLR线程概述 | Tomato Punk</title>
   
 
 
@@ -163,51 +168,158 @@
       <div class="main-inner">
         <div class="content-wrap">
           
-  
-  
 
-          <div class="content page posts-expand">
+          <div class="content post posts-expand">
             
 
     
-    
-    
-    <div class="post-block" lang="en">
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://murph.site/2020/11/10/c-clr-thread/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/b7cfdfb8-a2fe-406b-a6ca-a34fdd62c747.png">
+      <meta itemprop="name" content="Murphy">
+      <meta itemprop="description" content="一个中国软件开发工程师的自娱自乐">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tomato Punk">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CLR线程概述
+        </h1>
 
-<h1 class="post-title" itemprop="name headline">标签
-</h1>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
 
-<div class="post-meta">
+              <time title="Created: 2020-11-10 14:27:26" itemprop="dateCreated datePublished" datetime="2020-11-10T14:27:26+00:00">2020-11-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-13 06:51:23" itemprop="dateModified" datetime="2020-11-13T06:51:23+00:00">2020-11-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>CLR线程的概要设计</strong></p>
+<h3 id="原文信息"><a href="#原文信息" class="headerlink" title="原文信息"></a>原文信息</h3><p><a target="_blank" rel="noopener" href="https://github.com/dotnet/coreclr/blob/master/Documentation/botr/threading.md">原文:dotnet/coreclr</a></p>
+<a id="more"></a>
+
+<h3 id="托管线程-vs-原生线程"><a href="#托管线程-vs-原生线程" class="headerlink" title="托管线程 vs 原生线程"></a>托管线程 vs 原生线程</h3><p>托管代码执行在“托管线程上”,“托管线程”与操作系统提供的原生线程不同,原生线程是在物理机上执行原生代码的线程.托管代码是在CLR虚拟机执行的虚拟线程.</p>
+<p>就像JIT编译器将“虚拟”IL指令映射到原生指令在物理机上执行一样,CLR的线程<strong>infrastructure</strong>将“虚拟”的托管线程映射到操作系统的原生线程上.</p>
+<p>在任何时候,一个托管线程可能会分配给一个原生线程来执行,也可能不会.例如一个已经创建(通过“new System.Threading.Thread”)但是尚未启动(通过System.Threading.Thread.Start)的托管线程没有分配任何的原生线程.同样,一个托管线程也可能在执行过程中在多个的原生线程之间移动,尽管实际上CLR目前不支持此操作.</p>
+<p>托管代码可使用公共线程接口有意隐藏了底层原生线程的细节,因为</p>
+<ul>
+<li>托管线程不一定会映射到单个原生线程(也可能根本没有映射到原生线程上)</li>
+<li>不同到操作系统提供了不同的原生线程的抽象.</li>
+<li>原则上,托管线程是”虚拟的“.</li>
+</ul>
+<p>CLR提供了同样的托管线程的抽象,由CLR本身自己实现.例如,它没有公开操作系统的线程本地存储(TLS)机制.而是提供了托管的“静态线程(thread-static)”变量.同样,它没有暴露原生线程的“线程ID”,而是提供了独立于OS的“托管线程ID”.然而,出于诊断的目的,可以通过System.Diagnostics命名空间下的类型获取原生线程的一些底层细节.</p>
+<p>托管线程需要一些原生线程不需要的拓展功能.首先,托管线程将GC的引用保存在栈上,所以CLR必须能够每次发生GC时枚举(或是修改)这些引用.要做到这个,CLR必须“挂起(suspend)”每一个托管线程(在可以找到其所有的GC引用的地方停止它).其次,当AppDomain卸载时.CLR必须确保没有线程在该AppDomain中执行代码.这就需要能够让线程强制从该AppDomain中回退出来.CLR通过向这些线程注入ThreadAbortException来实现它.</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>每一个托管线程都有关联的Thread对象,在threads.h中定义.该对象跟踪虚拟机需要知道的关于托管线程的一切信息.这包括了一些必要的东西,当前的GC模式和栈帧(Frame chain(帧链,调用链?)),以及许多出于性能原因而按线程分配的东西( <strong>~比如快速的区域分配风格/ fast arena-style allocators</strong>).</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C#</a>
+              <a href="/tags/%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" rel="tag"># 性能诊断</a>
+              <a href="/tags/%E7%BA%BF%E7%A8%8B/" rel="tag"># 线程</a>
+              <a href="/tags/%E6%A6%82%E8%A6%81%E8%AE%BE%E8%AE%A1/" rel="tag"># 概要设计</a>
+              <a href="/tags/CLR-Thread/" rel="tag"># CLR Thread</a>
+              <a href="/tags/Thread/" rel="tag"># Thread</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/07/diagnosingMemoryPerformance-part0/" rel="prev" title="诊断性能问题的工作流程(0)">
+      <i class="fa fa-chevron-left"></i> 诊断性能问题的工作流程(0)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
-          <div class="tag-cloud">
-            <div class="tag-cloud-title">
-              12 tags in total
-            </div>
-            <div class="tag-cloud-tags">
-              <a href="/tags/C/" style="font-size: 30px; color: #111">C#</a> <a href="/tags/CLR-Thread/" style="font-size: 12px; color: #ccc">CLR Thread</a> <a href="/tags/Context/" style="font-size: 12px; color: #ccc">Context</a> <a href="/tags/Go/" style="font-size: 12px; color: #ccc">Go</a> <a href="/tags/Maoni/" style="font-size: 21px; color: #6f6f6f">Maoni</a> <a href="/tags/PerfView/" style="font-size: 21px; color: #6f6f6f">PerfView</a> <a href="/tags/Thread/" style="font-size: 12px; color: #ccc">Thread</a> <a href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87/" style="font-size: 12px; color: #ccc">上下文</a> <a href="/tags/%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" style="font-size: 30px; color: #111">性能诊断</a> <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" style="font-size: 12px; color: #ccc">架构设计</a> <a href="/tags/%E6%A6%82%E8%A6%81%E8%AE%BE%E8%AE%A1/" style="font-size: 12px; color: #ccc">概要设计</a> <a href="/tags/%E7%BA%BF%E7%A8%8B/" style="font-size: 12px; color: #ccc">线程</a>
-            </div>
-          </div>
-        
-      </div>
-      
-      
-      
-    </div>
-    
-
-    
-    
-    
 
 
           </div>
@@ -258,6 +370,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E6%96%87%E4%BF%A1%E6%81%AF"><span class="nav-number">1.</span> <span class="nav-text">原文信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%98%E7%AE%A1%E7%BA%BF%E7%A8%8B-vs-%E5%8E%9F%E7%94%9F%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">托管线程 vs 原生线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">数据结构</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

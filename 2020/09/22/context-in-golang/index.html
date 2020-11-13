@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"murph.site","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="原文信息@ricardo.linck原文:Context in Golang!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go中的Context">
+<meta property="og:url" content="http://murph.site/2020/09/22/context-in-golang/index.html">
+<meta property="og:site_name" content="Tomato Punk">
+<meta property="og:description" content="原文信息@ricardo.linck原文:Context in Golang!">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-09-22T14:27:26.000Z">
+<meta property="article:modified_time" content="2020-11-13T06:51:23.004Z">
+<meta property="article:author" content="Murphy">
+<meta property="article:tag" content="Go">
+<meta property="article:tag" content="Context">
+<meta property="article:tag" content="上下文">
+<meta property="article:tag" content="架构设计">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://murph.site/2020/09/22/context-in-golang/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Go中的Context | Tomato Punk</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Tomato Punk" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Tomato Punk</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description"><留着地方写骚话></p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">12</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">2</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">5</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/tomatopunk" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://murph.site/2020/09/22/context-in-golang/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/b7cfdfb8-a2fe-406b-a6ca-a34fdd62c747.png">
+      <meta itemprop="name" content="Murphy">
+      <meta itemprop="description" content="一个中国软件开发工程师的自娱自乐">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tomato Punk">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go中的Context
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-22 14:27:26" itemprop="dateCreated datePublished" datetime="2020-09-22T14:27:26+00:00">2020-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-13 06:51:23" itemprop="dateModified" datetime="2020-11-13T06:51:23+00:00">2020-11-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="原文信息"><a href="#原文信息" class="headerlink" title="原文信息"></a>原文信息</h3><p><a target="_blank" rel="noopener" href="https://levelup.gitconnected.com/@ricardo.linck">@ricardo.linck</a><br><a target="_blank" rel="noopener" href="https://levelup.gitconnected.com/context-in-golang-98908f042a57">原文:Context in Golang!</a></p>
+<a id="more"></a>
+<hr>
+<p>Golang应用程序使用Contexts来进行控制与管理非常关健的应用可靠性,例如在<a target="_blank" rel="noopener" href="https://levelup.gitconnected.com/goroutines-and-channels-concurrent-programming-in-go-9f9f8495c34d">concurrent programming</a>中的数据共享与取消.这听起来似乎很琐碎,但实际并非如此.在Golang中Contexts的入口点是<code>context</code>包.它非常有用,并且可能是整个语言功能最多的包之一.如果您还没有遇到任何有关上下文之类的东西,您大概很快就会遇到(或者您只是没有注意到它).上下文的用法非常广泛,以至于多数软件包都依赖它,并也假设您也会这样做.它绝对是Golang生态系统中的一个关键组件.</p>
+<p>这里是<code>context</code>软件包的官方文档 <a target="_blank" rel="noopener" href="https://golang.org/pkg/context/.%E5%AE%83%E7%9C%9F%E7%9A%84%E5%BE%88%E6%A3%92,%E5%B9%B6%E4%B8%94%E5%8C%85%E5%90%AB%E4%BA%86%E5%BE%88%E5%A4%9A%E4%BE%8B%E5%AD%90.%E4%B8%BA%E4%BA%86%E5%B0%9D%E8%AF%95%E6%8B%93%E5%B1%95%E5%AE%83%E4%BB%AC,%E6%9D%A5%E8%AE%A9%E6%88%91%E4%BB%AC%E7%9C%8B%E7%9C%8B%E6%88%91%E5%9C%A8%E7%9C%9F%E5%AE%9E%E5%9C%BA%E6%99%AF%E6%98%AF%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E7%9A%84">https://golang.org/pkg/context/.它真的很棒,并且包含了很多例子.为了尝试拓展它们,来让我们看看我在真实场景是如何使用的</a>.</p>
+<h3 id="使用上下文来包含您的数据"><a href="#使用上下文来包含您的数据" class="headerlink" title="使用上下文来包含您的数据"></a>使用上下文来包含您的数据</h3><p>一个常见的使用上下文的用户之一是用于共享数据,或者使用请求作用域的值.当您有多个函数并且想在他们之间共享数据,您可以使用上下文.</p>
+<p>最简单的方法是使用函数 context.WithValue.这个函数会根据父上下文创建一个新的上下文,并对您指定的Key添加一个值.您可以把内部实现看做是上下文的内部是一个map.</p>
+<p>所以您可以添加或者使用Key来找回Values,这是非常强大的,因为它允许您在上下文内部存储任何类型的数据.</p>
+<p>下面是一个用上下文添加和找回数据的例子.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ctx := context.Background()</span><br><span class="line">	ctx = addValue(ctx)</span><br><span class="line">	readValue(ctx)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">addValue</span><span class="params">(ctx context.Context)</span> <span class="title">context</span>.<span class="title">Context</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> context.WithValue(ctx, <span class="string">&quot;key&quot;</span>, <span class="string">&quot;test-value&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readValue</span><span class="params">(ctx context.Context)</span></span> &#123;</span><br><span class="line">	val := ctx.Value(<span class="string">&quot;key&quot;</span>)</span><br><span class="line">	fmt.Println(val)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在上下文中添加和找回值</p>
+</blockquote>
+<p>在Context包设计背后有一种重要的方面,任何操作都会返回一个新的context.Context结构.这意味着您需要记住运行时要用带的返回值,并尽可能的使用新的上下文覆盖旧上下文.</p>
+<p>这是来自于不可更改性(immutability)的关键设计.如果您想了解更多的关于gokang中的不可更改性,您可以阅读我的<a target="_blank" rel="noopener" href="https://levelup.gitconnected.com/immutability-in-golang-7a13199060bb">这篇文章</a></p>
+<p>要创建一个带有取消功能的上下文,您只需要使用函数<code>context.WithCancel(ctx)</code>将您的上下文通过参数传递进去.这会返回一个新的上下文与一个取消函数.您只需要调用取消函数,就可以取消上下文.</p>
+<p>下面这个例子来自于<a target="_blank" rel="noopener" href="https://medium.com/swlh/hedged-requests-tackling-tail-latency-9cea0a05f577">对冲请求(Hedged Request)</a>实现的带有取消功能的上下文.来让我们快速的回顾一下<a target="_blank" rel="noopener" href="https://medium.com/swlh/hedged-requests-tackling-tail-latency-9cea0a05f577">对冲请求(Hedged Request)</a>:我们对一个外部服务发起请求,如果在我们定义的时间没有返回,我们会发出第二个请求.当请求返回了,所有其他的请求都会被取消掉.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	neturl <span class="string">&quot;net/url&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">queryWithHedgedRequestsWithContext</span><span class="params">(urls []<span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	ch := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>, <span class="built_in">len</span>(urls))</span><br><span class="line">	ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line">	<span class="keyword">defer</span> cancel()</span><br><span class="line">	<span class="keyword">for</span> _, url := <span class="keyword">range</span> urls &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(u <span class="keyword">string</span>, c <span class="keyword">chan</span> <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">			c &lt;- executeQueryWithContext(u, ctx)</span><br><span class="line">		&#125;(url, ch)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> r := &lt;-ch:</span><br><span class="line">			cancel()</span><br><span class="line">			<span class="keyword">return</span> r</span><br><span class="line">		<span class="keyword">case</span> &lt;-time.After(<span class="number">21</span> * time.Millisecond):</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> &lt;-ch</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">executeQueryWithContext</span><span class="params">(url <span class="keyword">string</span>, ctx context.Context)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	start := time.Now()</span><br><span class="line">	parsedURL, _ := neturl.Parse(url)</span><br><span class="line">	req := &amp;http.Request&#123;URL: parsedURL&#125;</span><br><span class="line">	req = req.WithContext(ctx)</span><br><span class="line"></span><br><span class="line">	response, err := http.DefaultClient.Do(req)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err.Error())</span><br><span class="line">		<span class="keyword">return</span> err.Error()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> response.Body.Close()</span><br><span class="line">	body, _ := ioutil.ReadAll(response.Body)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;Request time: %d ms from url%s\n&quot;</span>, time.Since(start).Nanoseconds()/time.Millisecond.Nanoseconds(), url)</span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;%s from %s&quot;</span>, body, url)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个请求都是在一个独立的go routine中触发的.这个上下文被传递给所有触发的请求.唯一的逻辑就是将上下文传播给Http client.以便当取消函数辈调用时,可以优雅的取消请求和底层连接.对于接受context.Context作为参数的函数来说,这是一个非常常见的模式,它们要么主动地对上下文采取行动(比如检查它们是否已经取消),要么将它们传递给处理它的底层函数(本例中是通过http.Request的Do函数接受上下文)</p>
+<h3 id="超时上下文"><a href="#超时上下文" class="headerlink" title="超时上下文"></a>超时上下文</h3><p>在处理外部请求时,超时是一种非常常见的模式,类似通过Http或gRPC查询数据库或者从其他服务中获取数据.使用Context包处理这些产经非常简单.您所需要做的就是调用函数<code>context.WithTimeout(ctx,time)</code>,传递您的上下文与实际的超时时间,类似这样</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx, cancel := context.WithTimeout(context.Background(), <span class="number">100</span>*time.Millisecond)</span><br></pre></td></tr></table></figure>
+
+<p>您仍然可以接受到取消函数,以防您想手动触发它.它的工作方式与普通的超时上下文相同.</p>
+<blockquote>
+<p>一个好做法是,使用defer调用取消函数,避免内存泄露</p>
+</blockquote>
+<p>这个例子的行为非常直接.如果超时了,上下文会被取消.在HTTP调用的情况下,它的工作原理与上面的例子基本相同</p>
+<h3 id="gRPC"><a href="#gRPC" class="headerlink" title="gRPC"></a>gRPC</h3><p>Context是gRPC在golang的实现中的一个基本部分.它即用来共享数据(如何取消<a target="_blank" rel="noopener" href="https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md">元数据</a>)也用来控制流量,类似于取消流或请求.这是我的两个例子,来自于<a target="_blank" rel="noopener" href="https://github.com/RicardoLinck/grpc-go">GitHub存储库</a>.</p>
+<h4 id="Metadata"><a href="#Metadata" class="headerlink" title="Metadata"></a>Metadata</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*server)</span> <span class="title">Sum</span><span class="params">(ctx context.Context, req *calculatorpb.SumRequest)</span> <span class="params">(*calculatorpb.SumResponse, error)</span></span> &#123;</span><br><span class="line">	log.Printf(<span class="string">&quot;Sum rpc invoked with req: %v\n&quot;</span>, req)</span><br><span class="line">	md, _ := metadata.FromIncomingContext(ctx)</span><br><span class="line">	log.Printf(<span class="string">&quot;Metadata received: %v&quot;</span>, md)</span><br><span class="line">	<span class="keyword">return</span> &amp;calculatorpb.SumResponse&#123;</span><br><span class="line">		Result: req.NumA + req.NumB,</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Server implementation receiving metadata</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sum</span><span class="params">(c calculatorpb.CalculatorServiceClient)</span></span> &#123;</span><br><span class="line">	req := &amp;calculatorpb.SumRequest&#123;</span><br><span class="line">		NumA: <span class="number">3</span>,</span><br><span class="line">		NumB: <span class="number">10</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	ctx := metadata.AppendToOutgoingContext(context.Background(), <span class="string">&quot;user&quot;</span>, <span class="string">&quot;test&quot;</span>)</span><br><span class="line">	res, err := c.Sum(ctx, req)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Error calling Sum RPC: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Printf(<span class="string">&quot;Response: %d\n&quot;</span>, res.Result)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Client implementation sending metadata</p>
+</blockquote>
+<h4 id="Calcellation"><a href="#Calcellation" class="headerlink" title="Calcellation:"></a>Calcellation:</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(*server)</span> <span class="title">Greet</span><span class="params">(ctx context.Context, req *greetpb.GreetRequest)</span> <span class="params">(*greetpb.GreetResponse, error)</span></span> &#123;</span><br><span class="line">	log.Println(<span class="string">&quot;Greet rpc invoked!&quot;</span>)</span><br><span class="line"></span><br><span class="line">	time.Sleep(<span class="number">500</span> * time.Millisecond)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ctx.Err() == context.Canceled &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, status.Error(codes.Canceled, <span class="string">&quot;Client cancelled the request&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	first := req.Greeting.FirstName</span><br><span class="line">	<span class="keyword">return</span> &amp;greetpb.GreetResponse&#123;</span><br><span class="line">		Result: fmt.Sprintf(<span class="string">&quot;Hello %s&quot;</span>, first),</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Server implementation handling context cancellation</p>
+</blockquote>
+<pre><code class="go">
+func greetWithTimeout(c greetpb.GreetServiceClient) &#123;
+    req := &amp;greetpb.GreetRequest&#123;
+        Greeting: &amp;greetpb.Greeting&#123;
+            FirstName: &quot;Ricardo&quot;,
+            LastName:  &quot;Linck&quot;,
+        &#125;,
+    &#125;
+    ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+    defer cancel()
+    res, err := c.Greet(ctx, req)
+    if err != nil &#123;
+        grpcErr, ok := status.FromError(err)
+
+        if ok &#123;
+            if grpcErr.Code() == codes.DeadlineExceeded &#123;
+                log.Fatal(&quot;Deadline Exceeded&quot;)
+            &#125;
+        &#125;
+
+        log.Fatalf(&quot;Error calling Greet RPC: %v&quot;, err)
+    &#125;
+    log.Printf(&quot;Response: %s\n&quot;, res.Result)
+&#125;</code></pre>
+<h3 id="OpenTelemetry"><a href="#OpenTelemetry" class="headerlink" title="OpenTelemetry"></a>OpenTelemetry</h3><p><code>OpenTelemetry </code>还严重依赖于上下文来实现所谓的<strong>上下文传播(Context Propagation)</strong>.这是一种将不同系统中请求捆绑起来的做法.实现方式是将Span信息<code>注入(Inject)</code>到上下文中,作为您使用的协议的一部分(例如HTTP或gRPC).在另一个服务上,您需要<code>提取(Extrace)</code>Span信息.我在两篇文章中写过关于OpenTelemetry的文章,您可以在之类找到<a target="_blank" rel="noopener" href="https://medium.com/swlh/distributed-tracing-with-opentelemetry-part-1-6719df95a364">part 1</a>,<a target="_blank" rel="noopener" href="https://levelup.gitconnected.com/distributed-tracing-with-opentelemetry-part-2-cc5a9a8aa88c">part 2</a>.在这里您可以找到更多的关于OpenTelemetry的信息,以及使用gRPC和HTTP的例子.</p>
+<h3 id="最后的一些想法"><a href="#最后的一些想法" class="headerlink" title="最后的一些想法"></a>最后的一些想法</h3><p>上下文是作为Golang基本特性的一部分.因此理解并知道如何使用它们是非常重要的.<code>Context</code>包提供了一个非常简单和轻量级的API来与这个关键组件进行交互.关于<code>context.Context</code>的另一个重要的事情是,它可以用于多种事情.我们再这篇文章中涉及到了很多场景,在其中一些场景中,一个单一的上下文可以用来控制和携带范围值.这使得上下文成为创建可靠和简单代码的一个非常重要和强大的工具.</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Go/" rel="tag"># Go</a>
+              <a href="/tags/Context/" rel="tag"># Context</a>
+              <a href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87/" rel="tag"># 上下文</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/07/diagnosingMemoryPerformance-part2/" rel="prev" title="诊断性能问题的工作流程(2)">
+      <i class="fa fa-chevron-left"></i> 诊断性能问题的工作流程(2)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/07/diagnosingMemoryPerformance-part0/" rel="next" title="诊断性能问题的工作流程(0)">
+      诊断性能问题的工作流程(0) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E6%96%87%E4%BF%A1%E6%81%AF"><span class="nav-number">1.</span> <span class="nav-text">原文信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E4%B8%8A%E4%B8%8B%E6%96%87%E6%9D%A5%E5%8C%85%E5%90%AB%E6%82%A8%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number">2.</span> <span class="nav-text">使用上下文来包含您的数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E6%97%B6%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">3.</span> <span class="nav-text">超时上下文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gRPC"><span class="nav-number">4.</span> <span class="nav-text">gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Metadata"><span class="nav-number">4.1.</span> <span class="nav-text">Metadata</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Calcellation"><span class="nav-number">4.2.</span> <span class="nav-text">Calcellation:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OpenTelemetry"><span class="nav-number">5.</span> <span class="nav-text">OpenTelemetry</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E4%B8%80%E4%BA%9B%E6%83%B3%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">最后的一些想法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Murphy"
+      src="/images/b7cfdfb8-a2fe-406b-a6ca-a34fdd62c747.png">
+  <p class="site-author-name" itemprop="name">Murphy</p>
+  <div class="site-description" itemprop="description">一个中国软件开发工程师的自娱自乐</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tomatopunk" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tomatopunk" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lion.zhang@mail.com" title="E-Mail → mailto:lion.zhang@mail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Murphy</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">Symbols count total: </span>
+    <span title="Symbols count total">22k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">Reading time total &asymp;</span>
+    <span title="Reading time total">20 mins.</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
