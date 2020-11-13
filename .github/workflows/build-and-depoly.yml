@@ -1,4 +1,4 @@
-name: Hexo Build and Deploy
+name: hexo-deploy
 
 on:
   push:
@@ -6,17 +6,8 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Cache node modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{runner.OS}}-${{hashFiles('**/package-lock.json')}}
-      - uses: yrpang/github-actions-hexo@v1.3
-        with:
-          deploykey: ${{secrets.DEPLOY_KEY}}
-          username: PUBLISHER_USER_NAME
-          email: PUBLISHER_EMAIL_ADDRESS
+  deploy:
+    type: git
+    repo: https://github.com/tomatopunk/tomatopunk.github.io.git
+    branch: [gh-pages]
+    message: [deploy]
