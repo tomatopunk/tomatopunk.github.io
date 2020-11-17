@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://murph.site/img/WorkFlow-suspension3.jpg">
 <meta property="og:image" content="http://murph.site/img/WorkFlow-suspension4.jpg">
 <meta property="article:published_time" content="2020-05-07T14:27:26.000Z">
-<meta property="article:modified_time" content="2020-11-17T11:59:30.318Z">
+<meta property="article:modified_time" content="2020-11-17T12:04:34.156Z">
 <meta property="article:author" content="Murphy">
 <meta property="article:tag" content="C#">
 <meta property="article:tag" content="性能诊断">
@@ -212,7 +212,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-17 11:59:30" itemprop="dateModified" datetime="2020-11-17T11:59:30+00:00">2020-11-17</time>
+                <time title="Modified: 2020-11-17 12:04:34" itemprop="dateModified" datetime="2020-11-17T12:04:34+00:00">2020-11-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -386,6 +386,7 @@
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -616,6 +617,26 @@
   
 
   
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '6fc562088ca21c463a7b',
+      clientSecret: 'dc5699ee8e4cbf7e5836e7584f5388a7361a0be5',
+      repo        : 'tomatopunk.github.io',
+      owner       : 'tomatopunk',
+      admin       : ['flamingo'],
+      id          : '0acaa84eef1f823a5f685ff99216717f',
+        language: 'en | zh-cn',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>
