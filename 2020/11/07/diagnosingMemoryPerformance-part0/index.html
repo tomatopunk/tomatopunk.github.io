@@ -30,7 +30,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://murph.site/img/1587561145552-0d8a560c-3b7d-443a-badc-a98ddbb6e7bf.png">
 <meta property="article:published_time" content="2020-11-07T14:27:26.000Z">
-<meta property="article:modified_time" content="2020-11-18T07:32:05.647Z">
+<meta property="article:modified_time" content="2020-11-18T07:48:45.894Z">
 <meta property="article:author" content="Murphy">
 <meta property="article:tag" content="C#">
 <meta property="article:tag" content="性能诊断">
@@ -206,7 +206,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-11-18 07:32:05" itemprop="dateModified" datetime="2020-11-18T07:32:05+00:00">2020-11-18</time>
+                <time title="Modified: 2020-11-18 07:48:45" itemprop="dateModified" datetime="2020-11-18T07:48:45+00:00">2020-11-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,7 +231,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.4k</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -264,7 +264,7 @@
 <p>首先,在我们开始讨论实际的诊断部分之前,先让我们了解一些高级知识,帮您指明正确的方向.</p>
 <h3 id="GC的一些高级知识"><a href="#GC的一些高级知识" class="headerlink" title="GC的一些高级知识"></a>GC的一些高级知识</h3><h4 id="1-时间点-vs-时间段"><a href="#1-时间点-vs-时间段" class="headerlink" title="1)时间点 vs 时间段"></a>1)时间点 vs 时间段</h4><p>了解性能问题往往不是点状,这一点非常重要.内存问题通常不会突然出现,可能需要一段时间才能积累到明显的程度.</p>
 <p>让我们举一个简单的例子,对于一个非常简单的没有世代的GC,它只会紧凑的进行阻塞式GC.这种情况会一直存在.如果您的GC刚刚结束,堆当然处在最小的点.如果您碰巧在这个时间点进行测量,您会认为“太好了;我的堆很小”.但如果您恰好在进行下一次GC之前测量,则堆可能会大得多,并且您会有一些不同的看法.这只是针对于一个简单的GC.想象一下当您有一个世代GC或并发式GC时会发生些什么.</p>
-<p>这就是为什么了解一下GC的(history??? &gt; 再看看)是及其重要的,看看GC是如何作出决策,以及这些决策是如何导致目前的情况.</p>
+<p>这就是为什么了解一下GC的历史是及其重要的,看看GC是如何作出决策,以及这些决策是如何导致目前的情况.</p>
 <p>遗憾的是,很多内存工具或诊断方法,都没有将其考虑在内,它们进行内存诊断都方式是“让我来告诉您,您碰巧问到的那个时间点,堆上的情况”.这往往无济于事,有时候甚至会完全误导人们.浪费时间去追寻一个不存在的问题或在一个完全错误的问题上取得一些完全错误的进展.</p>
 <p>并不是说此类工具一点用处都没有-当问题很简单时,它们可能会有所帮助.如果您有一个非常严重的的内存泄漏,并且已经持续了一段时间,而您使用一个工具来显示当前的堆(采取进程转储或使用sos,或者另外的一些堆转储的工具),可能确实会很明显的显示出泄漏的是什么.</p>
 <h4 id="2-世代GC"><a href="#2-世代GC" class="headerlink" title="2)世代GC"></a>2)世代GC</h4><p>根据设计,具有世代的GC并不会每次触发时收集整个堆.尝试对年轻代GC频率要比对老年代GC高得多,因为对老年代GC的成本往往要高得多.对于并发式的老年代GC来说,STW的的中断时间不会很长,但仍然会需要花费机器周期来完成GC的工作.</p>
