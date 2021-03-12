@@ -21,25 +21,19 @@
     var CONFIG = {"hostname":"murph.site","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="原文为Maoni发布在Microfost Blog中的,诊断性能问题的工作流程系列.目前共更新三章.在本章中,Maoni介绍了一些关于GC设计与工具的使用,如果您已经具备了诊断性能问题的经验,可以直接跳过本章.">
+  <meta name="description" content="NewSQL-并发控制原理解析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="诊断性能问题的工作流程(0)">
-<meta property="og:url" content="http://murph.site/2020/11/07/diagnosingMemoryPerformance-part0/index.html">
+<meta property="og:title" content="NewSQL-并发控制">
+<meta property="og:url" content="http://murph.site/2021/03/12/newsql-concurrency-control/index.html">
 <meta property="og:site_name" content="Tomato Punk">
-<meta property="og:description" content="原文为Maoni发布在Microfost Blog中的,诊断性能问题的工作流程系列.目前共更新三章.在本章中,Maoni介绍了一些关于GC设计与工具的使用,如果您已经具备了诊断性能问题的经验,可以直接跳过本章.">
+<meta property="og:description" content="NewSQL-并发控制原理解析">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://murph.site/img/1587561145552-0d8a560c-3b7d-443a-badc-a98ddbb6e7bf.png">
-<meta property="article:published_time" content="2020-11-07T14:27:26.000Z">
+<meta property="article:published_time" content="2021-03-12T09:55:51.000Z">
 <meta property="article:modified_time" content="2021-03-12T11:59:07.910Z">
 <meta property="article:author" content="Murphy">
-<meta property="article:tag" content="C#">
-<meta property="article:tag" content="性能诊断">
-<meta property="article:tag" content="Maoni">
-<meta property="article:tag" content="PerfView">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://murph.site/img/1587561145552-0d8a560c-3b7d-443a-badc-a98ddbb6e7bf.png">
 
-<link rel="canonical" href="http://murph.site/2020/11/07/diagnosingMemoryPerformance-part0/">
+<link rel="canonical" href="http://murph.site/2021/03/12/newsql-concurrency-control/">
 
 
 <script id="page-configurations">
@@ -52,7 +46,7 @@
   };
 </script>
 
-  <title>诊断性能问题的工作流程(0) | Tomato Punk</title>
+  <title>NewSQL-并发控制 | Tomato Punk</title>
   
 
 
@@ -176,7 +170,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://murph.site/2020/11/07/diagnosingMemoryPerformance-part0/">
+    <link itemprop="mainEntityOfPage" href="http://murph.site/2021/03/12/newsql-concurrency-control/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/b7cfdfb8-a2fe-406b-a6ca-a34fdd62c747.png">
@@ -189,7 +183,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          诊断性能问题的工作流程(0)
+          NewSQL-并发控制
         </h1>
 
         <div class="post-meta">
@@ -198,24 +192,9 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2020-11-07 14:27:26" itemprop="dateCreated datePublished" datetime="2020-11-07T14:27:26+00:00">2020-11-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-03-12 11:59:07" itemprop="dateModified" datetime="2021-03-12T11:59:07+00:00">2021-03-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
-                </span>
+              <time title="Created: 2021-03-12 09:55:51 / Modified: 11:59:07" itemprop="dateCreated datePublished" datetime="2021-03-12T09:55:51+00:00">2021-03-12</time>
             </span>
 
           
@@ -231,14 +210,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.3k</span>
+              <span>6.9k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
+              <span>6 mins.</span>
             </span>
 
         </div>
@@ -250,58 +229,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>原文为Maoni发布在Microfost Blog中的,诊断性能问题的工作流程系列.<br>目前共更新三章.在本章中,Maoni介绍了一些关于GC设计与工具的使用,如果您已经具备了诊断性能问题的经验,可以直接跳过本章.</p>
+        <p>NewSQL-并发控制原理解析</p>
 <a id="more"></a>
 
-<h2 id="原文信息"><a href="#原文信息" class="headerlink" title="原文信息"></a>原文信息</h2><p><a target="_blank" rel="noopener" href="https://twitter.com/maoni0">@Maoni Stephens-Twitter</a><br><a target="_blank" rel="noopener" href="https://github.com/Maoni0">@Maoni Stephens-Github</a></p>
-<p><img src="/img/1587561145552-0d8a560c-3b7d-443a-badc-a98ddbb6e7bf.png" alt="authorize"></p>
-<p>如果这篇文章可以帮到您，那么这将是我最大的荣幸，希望您点进原文，在文章下方留下善意的回复，您的支持将是这些可敬的社区磐石保持创作激情中最大的一部分:)</p>
-<p><a target="_blank" rel="noopener" href="https://devblogs.microsoft.com/dotnet/work-flow-of-diagnosing-memory-performance-issues-part-0">原文</a></p>
-<p><strong>中文版本将不会以任何形式收费，版权属与原作者</strong></p>
-<hr>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>我想描述一下我是怎样诊断内存中的性能问题,更确切的说是在进行此类诊断的各种工作流程中可通用的部分.诊断性能问题没有固定的步骤,可以采用很多方式,我将尝试一下分解成可用于进行各种诊断一些基本的模块.</p>
-<p>这一部分是针对于初学者的,所以如果您已经进行了一段时间的内存中性能问题分析,您可以安全的跳过这一章节.</p>
-<p>首先,在我们开始讨论实际的诊断部分之前,先让我们了解一些高级知识,帮您指明正确的方向.</p>
-<h3 id="GC的一些高级知识"><a href="#GC的一些高级知识" class="headerlink" title="GC的一些高级知识"></a>GC的一些高级知识</h3><h4 id="1-时间点-vs-时间段"><a href="#1-时间点-vs-时间段" class="headerlink" title="1)时间点 vs 时间段"></a>1)时间点 vs 时间段</h4><p>了解性能问题往往不是点状,这一点非常重要.内存问题通常不会突然出现,可能需要一段时间才能积累到明显的程度.</p>
-<p>让我们举一个简单的例子,对于一个非常简单的没有世代的GC,它只会紧凑的进行阻塞式GC.这种情况会一直存在.如果您的GC刚刚结束,堆当然处在最小的点.如果您碰巧在这个时间点进行测量,您会认为“太好了;我的堆很小”.但如果您恰好在进行下一次GC之前测量,则堆可能会大得多,并且您会有一些不同的看法.这只是针对于一个简单的GC.想象一下当您有一个世代GC或并发式GC时会发生些什么.</p>
-<p>这就是为什么了解一下GC的历史是及其重要的,看看GC是如何作出决策,以及这些决策是如何导致目前的情况.</p>
-<p>遗憾的是,很多内存工具或诊断方法,都没有将其考虑在内,它们进行内存诊断都方式是“让我来告诉您,您碰巧问到的那个时间点,堆上的情况”.这往往无济于事,有时候甚至会完全误导人们.浪费时间去追寻一个不存在的问题或在一个完全错误的问题上取得一些完全错误的进展.</p>
-<p>并不是说此类工具一点用处都没有-当问题很简单时,它们可能会有所帮助.如果您有一个非常严重的的内存泄漏,并且已经持续了一段时间,而您使用一个工具来显示当前的堆(采取进程转储或使用sos,或者另外的一些堆转储的工具),可能确实会很明显的显示出泄漏的是什么.</p>
-<h4 id="2-世代GC"><a href="#2-世代GC" class="headerlink" title="2)世代GC"></a>2)世代GC</h4><p>根据设计,具有世代的GC并不会每次触发时收集整个堆.尝试对年轻代GC频率要比对老年代GC高得多,因为对老年代GC的成本往往要高得多.对于并发式的老年代GC来说,STW的的中断时间不会很长,但仍然会需要花费机器周期来完成GC的工作.</p>
-<p>这也使查看堆变得更加复杂,如果您刚完成一个老年代的GC,特别是刚经历过压缩的GC,您的堆显然会比在该GC被触发之前小的多.但如果您查看年轻代的GC,它们可能正在压缩,但是区别在于堆大小可能不会有太大变化,这是设计上所实现的.</p>
-<h4 id="3-压缩-vs-回收"><a href="#3-压缩-vs-回收" class="headerlink" title="3)压缩 vs 回收"></a>3)压缩 vs 回收</h4><p>回收不应该过多的改变堆的大小.在我们的实现中,我们仍然会放弃堆末尾的空间,所以整体的堆大小可能会变小,但总的来说,您可以认为整体的堆大小并没有发生改变,但是为了容纳年轻代的堆分配(或者用户分配在零代/LOH的情况下),会建立起自由空间(free spaces).</p>
-<p>因此,如果您看到对二代的两次gc,一次正在压缩另一次正在回收.那么可以预计,压缩阶段结束后,堆大小会缩小很多.回收阶段的碎片化程度则会很高(在设计中,这是我们设计中的自由列表(free list)).</p>
-<h4 id="4-分配-vs-存活"><a href="#4-分配-vs-存活" class="headerlink" title="4)分配 vs 存活"></a>4)分配 vs 存活</h4><p>虽然很多内存工具都会报告分配情况,但是GC的成本不仅仅是来自分配.当然分配会触发GC,这无疑是成本.但当GC工作时,成本主要取决于存活.当然,您不能同时处于分配率和存活率都很高的情况,这样只会非常快的用光内存.</p>
-<h4 id="5-“主线GC方案-vs-非主线”"><a href="#5-“主线GC方案-vs-非主线”" class="headerlink" title="5)“主线GC方案 vs 非主线”"></a>5)“主线GC方案 vs 非主线”</h4><p>如果您的程序仅仅是使用栈并且创建了一些要使用的对象,GC多年来一直在优化.基本上就是“扫描堆栈得到根对象然后在那里处理对象”.这就是许多GC论文都将其视为唯一的方案的主线GC方案.当然作为一个存在了几十年的商业产品,为了适应客户的各种需求,我们还有一些其他的东西,例如GC句柄和终结器.</p>
-<p>有一个很重要的事情请您理解,虽然多年来我们对这些进行了优化,但我们都是基于“没有太多的这些东西”基础上进行的假设,这显然不会适用于每个人.所以如果您确实使用了很多这些东西,在诊断内存问题时值得一看.换句话说,如果您没有内存问题,则无需在意;但是如果您有(例如high % time in GC),它们是很好的怀疑对象.</p>
-<p>所有的这些信息都表示为ETW事件或在Linux上的等效事件-这就是为什么我们多年来投资于分析跟踪的工具的原因.</p>
-<h3 id="开始捕捉跟踪"><a href="#开始捕捉跟踪" class="headerlink" title="开始捕捉跟踪"></a>开始捕捉跟踪</h3><p>我通常会从两条跟踪开始.第一次是为了获取准确的GC时间:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perfview /GCCollectOnly /nogui collect</span><br></pre></td></tr></table></figure>
-
-<p>完成后,在PerfView的cmd窗口按s停止.</p>
-<p>这应该运行足够长的时间,充分捕获GC活动,例如,如果您知道问题何时会发生,则应该涵盖导致问题发生的时间(不仅仅只有发生问题的时间).</p>
-<p>如果您知道要运行多长时间,您可以这样做(实际上更常用) -</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perfview /GCCollectOnly /nogui /MaxCollectSec:1800 collect</span><br></pre></td></tr></table></figure>
-<p>将1800(半小时)替换成您需要的秒数</p>
-<p>这会收集infomational级别的GC事件和足够的OS事件,以及解码后的进程名称.这个命令非常轻量,所以它可以一直保持运行.</p>
-<p>请注意,我给出的所有PerfView命令都有<code>/nogui</code>.PerfView确实有一个用于事件收集的UI,可以让您选择需要捕获的事件.就我而言,我从没使用过它(除了在我刚使用PerfView时使用过几次).一部分原因是因为我更喜欢命令行;另一个(更重要的)原因是命令行具有更多的灵活性,对自动化很友好.</p>
-<p>当您搜集到跟踪数据后,您可以使用PerfView打开它并查看GCStats视图,有些人倾向于在完成收集后将其发送给我,但我真的鼓励每个需要定期进行内存诊断的人学习阅读这个视图,它非常有用.尽管跟踪如此轻量,但仍旧给我们提供了大量的信息.并且就算不能让我们找到根本原因,也会指出取得更大进展的方向.我在<a target="_blank" rel="noopener" href="https://devblogs.microsoft.com/dotnet/gc-etw-events-1/">这篇文章</a>及续篇描述了这些视图,在文章中都有链接.所以我在这里不打算展示更多的图片.您可以自己很轻易的打开这些视图.</p>
-<p>通过此视图很容易发现的问题类型的例子 -</p>
-<ul>
-<li><p>非常高的“% Time paused for garbage collection(垃圾收集的中断时间百分比)”.除非您正在做一些基准测试,特别是在测试分配性能(类似非常多GC的基准测试),否则这个不指标不应该高于百分之几.如果您发现该指标已经很高了,那就需要调查了.下面是一些会显著导致这个百分比增加的情况.</p>
-</li>
-<li><p>个别GC的中断事件特别长.60s的GC很长吗?是的,肯定很长!通常来说不是由于GC的工作导致的.根据我的经验,这往往是由于某些因素干扰了GC线程的工作.</p>
-</li>
-<li><p>过多主动触发GC(当 <strong>主动触发的GC/触发GC的总数量</strong> 比例很高时),特别是对第二代主动触发的GC时.</p>
-</li>
-<li><p>过多的针对二代堆GC - 对二代堆进行GC成本是十分昂贵的,尤其是当您有一个大堆时.即便使用了BGC,大部分工作都是并发完成的.但它仍需要花费机器周期,因此,如果您其他的GC都是针对第二代,这通常是指出了一个问题,一种明显的情况是它们大部分的触发理由都是AllocLarge.同样,在某些情况下这不一定是问题,例如,如果您的堆大部分都是LOH,并且没有在容器中运行,这意味着LOH默认不会进行压缩,在这种情况下,二代堆GC只会回收并快速的退出.</p>
-</li>
-<li><p>长时间的挂起问题 - 挂起通常应该远远小于1ms,如果需要几毫秒-10s,那就是问题,如果需要花费上百毫秒,那毫无疑问是问题.</p>
-</li>
-<li><p>过多的固定句柄 - 一般情况下,少量的几个固定句柄是可以的,但如果您在短暂的GC中看到数百个,那就值得关注了;如果您看到几千个,通常,这是告诉您需要进行调查了.</p>
-</li>
-</ul>
-<p>这些只是您第一眼就能看到的东西.如果您要进行更加深入的挖掘,还有很多事情要做.我们下次在讨论.</p>
+<p>Concurrency control scheme is the most salient and important implementation detail of a transaction processing DBMS as it affects almost all aspects of the system. Concurrency control permits end-users to access a database in a multi-program SIGMOD Record, June 2016 (Vol. 45, No. 2) 49 med fashion while preserving the llusion that each of them is executing their transaction alone on a dedicated system. It essentially provides the atomicity and isolation guarantees in the system, and as such it influences the entire system’s behavior.</p>
+<p>Beyond which scheme a system uses, another important aspect of the design of a distributed DBMS is whether the system uses a centralized or decentralized transaction coordination protocol. In a system with a centralized coordinator, all transactions’ operations have to go through the coordinator,<br>which then makes decisions about whether transactions are allowed to proceed or not. This is the same approach used by the TP monitors of the 1970–1980s (e.g., IBM CICS, Oracle Tuxedo). In a decentralized system, each node maintains the state of transactions that access the data that it manages. The nodes then have to coordinate with each other to determine whether concurrent transactions conflict. A decentralized coordinator is better for scalability but requires that the clocks in the DBMS nodes are highly synchronized in order to generate a global ordering of transactions [1].</p>
+<p>The first distributed DBMSs from the 1970–80s used twophase locking (2PL) schemes. SDD-1 was the first DBMS specifically designed for distributed transaction processing across a cluster of shared-nothing nodes managed by a centralized coordinator. IBM’s R* was similar to SDD-1, but the main difference was that the coordination of transactions in R* was completely decentralized; it used distributed 2PL protocol where transactions locked data items that they access directly at nodes. The distributed version of INGRES also used decentralized 2PL with centralized deadlock detection.</p>
+<p>Almost all of the NewSQL systems based on new architectures eschew 2PL because the complexity of dealing with deadlocks. Instead, the current trend is to use variants of timestamp ordering (TO) concurrency control where the DBMS assumes that transactions will not execute interleaved operations that will violate serializable ordering. The most widely used protocol in NewSQL systems is decentralized multi-version concurrency control (MVCC) where the DBMS creates a new<br>version of a tuple in the database when it is updated by a transaction. Maintaining multiple versions potentially allows transactions to still complete even if another transaction updates the same tuples. It also allows for long-running, read-only transactions to not block on writers. This protocol is used in almost all of the NewSQL systems based on new architectures, like MemSQL, HyPer, HANA, and CockroachDB. Although there are engineering optimizations and tweaks that these systems use in their MVCC implementations to improve performance, the basic concepts of the scheme are not new. The first known work describing MVCC is a MIT PhD dissertation from 1979 [3], while the first commercial DBMSs to use it were Digital’s VAX Rdb and InterBase in the early 1980s. We note that the architecture of InterBase was designed by Jim Starkey, who is also the original designer of NuoDB and the failed Falcon MySQL storage engine project.</p>
+<p>Other systems use a combination of 2PL and MVCC together. With this approach, transactions still have to acquire locks under the 2PL scheme to modify the database. When a transaction modifies a record, the DBMS creates a new version of that record just as it would with MVCC. This scheme allows read-only queries to avoid having to acquire locks and therefore not block on writing transactions. The most famous implementation of this approach is MySQL’s InnoDB, but it<br>is also used in both Google’s Spanner, NuoDB, and Clustrix. NuoDB improves on the original MVCC by employing a gossip protocol to broadcast versioning information between nodes.</p>
+<p>All of the middleware and DBaaS services inherit the concurrency control scheme of their underlying DBMS architecture; since most of them use MySQL, this makes them 2PL with MVCC systems.</p>
+<p>We regard the concurrency control implementation in Spanner (along with its descendants F1 [4] and SpannerSQL) as one of the most novel of the NewSQL systems. The actual scheme itself is based on the 2PL and MVCC combination developed in previous decades. But what makes Spanner different is that it uses hardware devices (e.g., GPS, atomic clocks) for high-precision clock synchronization. The DBMS uses these clocks to assign timestamps to transactions to enforce consistent views of its multi-version database over wide-area networks. CockroachDB also purports to provide the same kind of consistency for transactions across data centers as Spanner but without the use of atomic clocks. They instead rely on a hybrid clock protocol that combines loosely synchronized hardware clocks and logical counters [41].</p>
+<p>Spanner is also noteworthy because it heralds Google’s return to using transactions for its most critical services. The authors of Spanner even remark that it is better to have their application programmers deal with performance problems due to overuse of transactions, rather than writing code to deal with the lack of transactions as one does with a NoSQL DBMS [1].</p>
+<p>Lastly, the only commercial NewSQL DBMS that is not using some MVCC variant is VoltDB. This system still uses TO concurrency control, but instead of interleaving transactions like in MVCC, it schedules transactions to execute one-at-atime at each partition. It also uses a hybrid architecture where single-partition transactions are scheduled in a decentralized manner but multi-partition transactions are scheduled with a centralized coordinator. VoltDB orders transactions based on logical timestamps and then schedules them for execution at a partition when it is their turn. When a transaction executes at a partition, it has exclusive access to all of the data at that partition and thus the system does not have to set fine-grained locks and latches on its data structures. This allows transactions that only have to access a single partition to execute efficiently because there is no contention from other transactions. The downside of partition-based concurrency control is that it does not work well if transactions span multiple partitions because the network communication delays cause nodes to sit idle while they wait for messages. This partition-based concurrency is not a new idea. An early variant of it was first proposed in a 1992 paper by Hector Garcia-Molina [2] and implemented in the kdb system in late 1990s [5] and in HStore (which is the academic predecessor of VoltDB). </p>
+<p>In general, we find that there is nothing significantly new about the core concurrency control schemes in NewSQL systems other than laudable engineering to make these algorithms work well in the context of modern hardware and distributed operating environments.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><blockquote>
+<p>[1] J. C. Corbett, J. Dean, M. Epstein, A. Fikes, C. Frost,J. Furman, S. Ghemawat, A. Gubarev, C. Heiser,P. Hochschild, W. Hsieh, S. Kanthak, E. Kogan, H. Li,A. Lloyd, S. Melnik, D. Mwaura, D. Nagle, S. Quinlan,R. Rao, L. Rolig, Y. Saito, M. Szymaniak, C. Taylor,R. Wang, and D. Woodford. Spanner: Google’s Globally-Distributed Database. In OSDI, 2012<br>[2] H. Garcia-Molina and K. Salem. Main memory database systems: An overview. IEEE Trans. on Knowl. and Data Eng., 4(6):509–516, Dec. 1992.<br>[3] D. P. Reed. Naming and synchronization in a decentralized computer system. PhD thesis, MIT, 1979<br>[4]  J. Shute, R. Vingralek, B. Samwel, B. Handy,C. Whipkey, E. Rollins, M. Oancea, K. Littlefield,D. Menestrina, S. Ellner, J. Cieslewicz, I. Rae,T. Stancescu,and H. Apte. F1: A distributed sql database that scales. Proc. VLDB Endow.,6(11):1068–1079, Aug. 2013.<br>[5] A. Whitney, D. Shasha, and S. Apter. High Volume Transaction Processing Without Concurrency Control,Two Phase Commit, SQL or C++. In HPTS, 1997.</p>
+</blockquote>
 
     </div>
 
@@ -329,12 +272,6 @@
 
 
       <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/C/" rel="tag"># C#</a>
-              <a href="/tags/%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD/" rel="tag"># 性能诊断</a>
-              <a href="/tags/Maoni/" rel="tag"># Maoni</a>
-              <a href="/tags/PerfView/" rel="tag"># PerfView</a>
-          </div>
 
         
 
@@ -342,13 +279,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/09/22/context-in-golang/" rel="prev" title="Go中的Context">
-      <i class="fa fa-chevron-left"></i> Go中的Context
+    <a href="/2020/11/10/c-clr-thread/" rel="prev" title="大话线程(CLR视角)">
+      <i class="fa fa-chevron-left"></i> 大话线程(CLR视角)
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/11/10/c-clr-thread/" rel="next" title="大话线程(CLR视角)">
-      大话线程(CLR视角) <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -408,7 +342,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E6%96%87%E4%BF%A1%E6%81%AF"><span class="nav-number">1.</span> <span class="nav-text">原文信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">2.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GC%E7%9A%84%E4%B8%80%E4%BA%9B%E9%AB%98%E7%BA%A7%E7%9F%A5%E8%AF%86"><span class="nav-number">2.1.</span> <span class="nav-text">GC的一些高级知识</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%97%B6%E9%97%B4%E7%82%B9-vs-%E6%97%B6%E9%97%B4%E6%AE%B5"><span class="nav-number">2.1.1.</span> <span class="nav-text">1)时间点 vs 时间段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%B8%96%E4%BB%A3GC"><span class="nav-number">2.1.2.</span> <span class="nav-text">2)世代GC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%8E%8B%E7%BC%A9-vs-%E5%9B%9E%E6%94%B6"><span class="nav-number">2.1.3.</span> <span class="nav-text">3)压缩 vs 回收</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%88%86%E9%85%8D-vs-%E5%AD%98%E6%B4%BB"><span class="nav-number">2.1.4.</span> <span class="nav-text">4)分配 vs 存活</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E2%80%9C%E4%B8%BB%E7%BA%BFGC%E6%96%B9%E6%A1%88-vs-%E9%9D%9E%E4%B8%BB%E7%BA%BF%E2%80%9D"><span class="nav-number">2.1.5.</span> <span class="nav-text">5)“主线GC方案 vs 非主线”</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E6%8D%95%E6%8D%89%E8%B7%9F%E8%B8%AA"><span class="nav-number">2.2.</span> <span class="nav-text">开始捕捉跟踪</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.</span> <span class="nav-text">References</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -604,7 +538,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'tomatopunk.github.io',
       owner       : 'tomatopunk',
       admin       : ['tomatopunk'],
-      id          : '3205087ac649aee11afcc7e39770c38d',
+      id          : 'e8ea25e2a0c0cfd30a2bc232a4806721',
         language: 'en | zh-cn',
       distractionFreeMode: true
     });
