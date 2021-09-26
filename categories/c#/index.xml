@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>C# on Tomato Punk</title>
+    <link>https://murph.site/categories/c#/</link>
+    <description>Recent content in C# on Tomato Punk</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 10 Nov 2020 14:27:26 +0000</lastBuildDate><atom:link href="https://murph.site/categories/c#/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>大话线程(CLR视角)</title>
+      <link>https://murph.site/posts/2020-11-13-c-clr-thread/</link>
+      <pubDate>Tue, 10 Nov 2020 14:27:26 +0000</pubDate>
+      
+      <guid>https://murph.site/posts/2020-11-13-c-clr-thread/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>诊断性能问题的工作流程(0)</title>
+      <link>https://murph.site/posts/2020-11-07-diagnosingmemoryperformance-part0/</link>
+      <pubDate>Sat, 07 Nov 2020 14:27:26 +0000</pubDate>
+      
+      <guid>https://murph.site/posts/2020-11-07-diagnosingmemoryperformance-part0/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>诊断性能问题的工作流程(2)</title>
+      <link>https://murph.site/posts/2020-05-07-diagnosingmemoryperformance-part2/</link>
+      <pubDate>Thu, 07 May 2020 14:27:26 +0000</pubDate>
+      
+      <guid>https://murph.site/posts/2020-05-07-diagnosingmemoryperformance-part2/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>诊断性能问题的工作流程(1)</title>
+      <link>https://murph.site/posts/2020-05-06-diagnosingmemoryperformance-part1/</link>
+      <pubDate>Wed, 06 May 2020 14:27:26 +0000</pubDate>
+      
+      <guid>https://murph.site/posts/2020-05-06-diagnosingmemoryperformance-part1/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
