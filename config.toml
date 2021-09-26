@@ -1,10 +1,19 @@
-baseURL = "http://example.org/"
-languageCode = "en-us"
+baseURL = "https://murph.site/"
+languageCode = "zh-cn"
 theme = "hyde"
-title = "My New Hugo Site"
+title = "Tomato Punk"
+summaryLength = 0
+hasCJKLanguage = true
+
 [params]
-disqusShortname = ""
+disqusShortname = "flamingo"
 googleAnalytics = ""
 layoutReverse = false
 theme = "hyde"
-themeColor = ""
+themeColor = "theme-base-0c"
+description = " "
+[menus]
+main = [
+    {Name = "Github", URL = "https://github.com/tomatopunk/"},
+    {Name = "Mail", URL = "lion.zhang@mail.com"}
+]
