@@ -7,11 +7,11 @@ hasCJKLanguage = true
 
 [params]
 disqusShortname = "flamingo"
-googleAnalytics = ""
+googleAnalytics = "G-9F0K81DG4J"
 layoutReverse = false
 theme = "hyde"
-themeColor = "theme-base-0c"
-description = " "
+themeColor = "theme-base-0f"
+description = "Hi, 我是Murphy"
 [menus]
 main = [
     {Name = "Github", URL = "https://github.com/tomatopunk/"},
