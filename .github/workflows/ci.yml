@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ hugo,hugo2 ]
+    branches: [ hugo,hugo2,hugo-jane ]
 
 jobs:
   deploy:
