@@ -2,10 +2,9 @@
 title: 诊断性能问题的工作流程(0)
 date: 2020-11-07 14:27:26
 update: 2020-11-13 14:27:26
-categories: C#
+categories: [Index]
 tags:
     - C#
-    - 性能诊断
     - Maoni
     - PerfView
 ---
@@ -78,7 +77,7 @@ tags:
 
 我通常会从两条跟踪开始. 第一次是为了获取准确的GC时间:
 
-``` shell
+``` Shell
 perfview /GCCollectOnly /nogui collect
 ```
 
@@ -88,7 +87,7 @@ perfview /GCCollectOnly /nogui collect
 
 如果您知道要运行多长时间, 您可以这样做(实际上更常用) -
 
-``` shell
+``` Shell
 perfview /GCCollectOnly /nogui /MaxCollectSec:1800 collect
 ```
 将1800(半小时)替换成您需要的秒数

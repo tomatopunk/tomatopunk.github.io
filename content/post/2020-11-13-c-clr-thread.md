@@ -2,7 +2,7 @@
 title: 大话线程(CLR视角)
 date: 2020-11-10 14:27:26
 update: 2020-11-18
-categories: C#
+categories: [Index]
 tags:
     - C#
     - 性能诊断

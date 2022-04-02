@@ -2,7 +2,7 @@
 title: 诊断性能问题的工作流程(2)
 date: 2020-05-07 14:27:26
 update: 2020-11-13 14:27:26
-categories: C#
+categories: [Index]
 tags:
     - C#
     - 性能诊断
@@ -61,9 +61,8 @@ PerfView /nogui /accepteula /KernelEvents=default+Memory+VirtualAlloc /ClrEvents
 
 请注意, 我也指定了 **`/BufferSize:3000 /CircularMB:3000`** 参数, 我现在收集的事件比较多, 默认值可能不够用, 对于GCCollectOnly, 我知道它收集的事件不多, 所以默认值就足够了. 一般来说, 我发现3000MB对于这个跟踪的两个参数都是足够的. 如果这些大小有问题, PerfView会给出非常有参考价值的信息, 所以请注意它弹出的对话框! 这是由HandleLostEvents方法触发的:
 
-``` java
-private void HandleLostEvents(Window parentWindow,  bool truncated,  int numberOfLostEvents,  
-                            int eventCountAtTrucation,  StatusBar worker)
+``` cs
+private void HandleLostEvents(Window parentWindow,bool truncated,int numberOfLostEvents,int eventCountAtTrucation,StatusBar worker)
 {
     string warning;
     if (!truncated)
@@ -88,11 +87,7 @@ private void HandleLostEvents(Window parentWindow,  bool truncated,  int numberO
 
 我的做法是, 查看GCStats找出哪个时间段是我感兴趣的, 然后跳过之前的部分. 请注意, 如果您看我在[这篇博客](https://devblogs.microsoft.com/dotnet/gc-perf-infrastructure-part-1/)提到的GC性能基础结构的跟踪, 您就不会有这个问题, 因为基础结构会查看. etl文件, 不会经过. etlx的步骤. 这就解释了为什么当您使用GC Perf infra时, 您可以看到比您在PerfView中更多的GC
 
-指定 **`/ClrEvents:GC+Stack`** 参数是很重要的, 运行时的默认会收集大量的关键词--
-
-```
-Default = GC | Type | GCHeapSurvivalAndMovement | Binder | Loader | Jit | NGen | SupressNGen | StopEnumeration | Security | AppDomainResourceManagement | Exception | Threading | Contention | Stack | JittedMethodILToNativeMap | ThreadTransfer | GCHeapAndTypeNames | Codesymbols | Compilation, 
-```
+指定 **`/ClrEvents:GC+Stack`** 参数是很重要的, 运行时的默认会收集大量的关键词: 
 
 - Default = GC
 - Type
@@ -121,8 +116,8 @@ Default = GC | Type | GCHeapSurvivalAndMovement | Binder | Loader | Jit | NGen |
 
 性能问题的类别之一是偶尔的长时间GC(您可以很容易的在GCCollectOnly的跟踪中发现他们), 您可以使用这个命令行, 让PerfView在观察到长GC时立刻停止跟踪:
 
-```
-PerfView. exe /nogui /accepteula /StopOnGCOverMSec:100 /Process:MyProcess /DelayAfterTriggerSec:0 /CollectMultiple:3 /KernelEvents=default+Memory+VirtualAlloc /ClrEvents:GC+Stack /BufferSize:3000 /CircularMB:3000 collect
+``` shell
+PerfView.exe /nogui /accepteula /StopOnGCOverMSec:100 /Process:MyProcess /DelayAfterTriggerSec:0 /CollectMultiple:3 /KernelEvents=default+Memory+VirtualAlloc /ClrEvents:GC+Stack /BufferSize:3000 /CircularMB:3000 collect
 ```
 
 用您的进程名字替换掉MyProcess(如果您的进程名字是a. exe, 这里的参数不含. exe, 应该是/Process:A)
@@ -135,8 +130,8 @@ PerfView. exe /nogui /accepteula /StopOnGCOverMSec:100 /Process:MyProcess /Delay
 
 还有其他的停止触发器. 要获得有关于它们的帮助, 点击Help/Command Line Helper, 然后在帮助页面上搜索StopOn. 你会看到一堆与各种触发条件有关的停止跟踪开关. 与GC相关的有:
 
-- [-StopOnPerfCounter:STRING, …]
-- [-StopOnEtwEvent:STRING, …]
+- [-StopOnPerfCounter:STRING,…]
+- [-StopOnEtwEvent:STRING,…]
 - [-StopOnGCOverMsec:0]
 - [-StopOnGCSuspendOverMSec:0]
 - [-StopOnBGCFinalPauseOverMsec:0]
@@ -145,7 +140,7 @@ PerfView. exe /nogui /accepteula /StopOnGCOverMSec:100 /Process:MyProcess /Delay
 
 最后三个不需要我解释.  **`StopOnGCOverMSec`** 是最常用的一个. 请注意, **`StopOnGCOverMSec`** 指的是GC/Start与GC/Stop的间隔时间, 如果您指定了/StopOnGCMSec:500, 意味着一旦检测到GC/Start与GC/Stop的间隔超过了500ms, 跟踪就会停止. 如果您正在观察长时间的挂起, 您需要使用 **`StopOnGCSuspendOverMSec`** 触发器, 它实际上在内部与StopOnEtwEvent一起实现, 比较 **`SuspendEEStart`** 和 **`SuspendEEStop`** 时间的间隔触发 - 
 
-```
+``` text
 etwStopEvents. Add("E13C0D23-CCBC-4E12-931B-D9CC2EEE27E4/GC/SuspendEEStart;StopEvent=GC/SuspendEEStop;StartStopID=ThreadID;Keywords=0x1;TriggerMSec=" + StopOnGCSuspendOverMSec);
 ```
 

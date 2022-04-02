@@ -2,7 +2,7 @@
 title: Go中的Context
 date: 2020-09-22 14:27:26
 update: 2020-11-13 14:27:26
-categories: Go
+categories: [Go]
 tags:
     - Go
     - Context

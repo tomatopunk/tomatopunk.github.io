@@ -2,10 +2,9 @@
 title: 诊断性能问题的工作流程(1)
 date: 2020-05-06 14:27:26
 update: 2020-11-13 14:27:26
-categories: C#
+categories: [Index]
 tags:
     - C#
-    - 性能诊断
     - Maoni
     - PerfView
 ---
@@ -78,7 +77,7 @@ tags:
 
 上一篇文章中, 我们谈到了收集 GCCollectOnly 跟踪和检查 PerfView 中的GCStats视图, 该视图由收集的 GC 事件启用. 您也可以在 Linux 上用 dotnet-trace 做这件事. 从它的[文档](https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md)中可以看出: 它提供的一个内置配置文件相当于 PerfView 的收集命令中的 `/GCCollectOnly` 参数。
 
-```
+``` Shell
  --profile
 
    [omitted]
@@ -117,8 +116,8 @@ tags:
 
 所以对于`二代堆GC`, 您可能会看到2N, 2NI, 2Ni or 2Bi. 如果您使用GC. Collect来触发GC, 它有两个采用此参数的重载 –
 
-```cs
-bool blocking
+``` cs
+(bool blocking)
 ```
 
 除非您将该参数指定为False, 它意味着将始终以阻塞的方式触发GC. 这就是为什么没有2BI的原因
@@ -137,7 +136,7 @@ bool blocking
 
 让我以GC#9217为例, 它的首次中断在789, 274. 32 您可以在“Start”输入框中输入它. 然后在“Process Filter”中输入“gc/”, 仅过滤GC事件, 然后选择SuspendEE/RestartEE/GCStart/GCStop事件, 摁下回车. 
 
-下面是此时您将会看到的示例图片(处于隐私原因, 我删除了进程名字) - 
+下面是此时您将会看到的示例图片(出于隐私原因, 我删除了进程名字) - 
 ![WorkFlow1-0](#)(/posts/images/WorkFlow1-0.jpg)
 
 这就是首次发生中断的地方, 如果您选择首次SuspendEEStart和首次RestartEEStop的时间戳, 我可以看到在这个视图的状态栏上显示了两个时间戳的差异是75. 902. 这已经非常长了 -通常来说, 首次中断时间每组都应当不超过几毫秒. 对于这种情况, 您基本上可以将其交给我, 因为在我的设计中, 不应该出现这种情况. 
@@ -162,7 +161,7 @@ bool blocking
 
 - [srcTraceEventParsersClrTraceEventParser.cs](#)(https://github.com/microsoft/perfview/blob/master/src/TraceEvent/Parsers/ClrTraceEventParser.cs)
 
-```cs
+``` cs
 public enum GCReason
 {
     AllocSmall = 0x0, 
