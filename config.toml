@@ -8,7 +8,7 @@ hasCJKLanguage = true     # has chinese/japanese/korean ? # 自动检测是否�
 paginate = 3              # Number of articles displayed on the homepage  # 首页每页显示的文章数
 rssLimit = 20             # Limit Entry Count to Rss file # 限制 Rss 文章输出数量
 disqusShortname = ""      # disqus_shortname
-googleAnalytics = "G-9F0K81DG4J"      # UA-XXXXXXXX-X
+googleAnalytics = "UA-224693559-1"      # UA-XXXXXXXX-X
 copyright = "京ICP备2020037990号"          # default: author.name ↓        # 默认为下面配置的author.name ↓
 
 # Highlight options.
